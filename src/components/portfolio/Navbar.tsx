@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Container } from "./Container";
@@ -62,7 +64,7 @@ export const Navbar: React.FC = () => {
             <Link href="/" style={navLinkStyle}>Home</Link>
             
             {/* Explore More Dropdown */}
-            <div style={{ position: "relative", display: "flex", alignItems: "center", cursor: "pointer", group: "explore" }}
+            <div style={{ position: "relative", display: "flex", alignItems: "center", cursor: "pointer" }}
                  onMouseEnter={(e) => {
                    const dropdown = e.currentTarget.querySelector('.dropdown-menu');
                    if (dropdown) (dropdown as HTMLElement).style.display = 'block';

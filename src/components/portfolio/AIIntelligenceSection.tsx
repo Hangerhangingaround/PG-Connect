@@ -32,7 +32,7 @@ export const AIIntelligenceSection: React.FC = () => {
               overflow: "hidden"
             }}>
               <div style={{ position: "absolute", top: "-10px", right: "-10px", opacity: 0.05 }}>
-                {React.cloneElement(step.icon as React.ReactElement, { size: 120 })}
+                {React.cloneElement(step.icon as any, { size: 120 })}
               </div>
               <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "var(--text)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px" }}>
                 {step.icon}
