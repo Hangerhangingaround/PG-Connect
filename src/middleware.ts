@@ -30,6 +30,11 @@ export default withAuth(
             return NextResponse.redirect(new URL("/dashboard/pg-owner", req.url));
         }
 
+        // Protect /owner routes to only allow PG_OWNER
+        if (pathname.startsWith("/owner") && (token as any).role !== "PG_OWNER") {
+            return NextResponse.redirect(new URL("/", req.url));
+        }
+
         return NextResponse.next();
     },
     {
@@ -47,5 +52,5 @@ export default withAuth(
 );
 
 export const config = {
-    matcher: ["/dashboard/:path*", "/login", "/register"],
+    matcher: ["/dashboard/:path*", "/login", "/register", "/owner/:path*"],
 };
