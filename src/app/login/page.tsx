@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Container } from "@/components/portfolio/Container";
 import { Button } from "@/components/ui/Button";
@@ -12,10 +12,21 @@ import { Navbar } from "@/components/portfolio/Navbar";
 
 export default function LoginPage() {
     const router = useRouter();
+    const { data: session, status } = useSession();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+
+    React.useEffect(() => {
+        if (status === "authenticated" && session?.user) {
+            if ((session.user as any).role === "PG_OWNER") {
+                router.push("/owner/dashboard");
+            } else {
+                router.push("/");
+            }
+        }
+    }, [status, session, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

@@ -7,7 +7,7 @@ import crypto from "crypto";
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { name, email, password, role, permanentAddress, phone } = body;
+        const { name, email, password, role, permanentAddress, phone, gender } = body;
 
         if (!email || !password || !role) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -32,6 +32,7 @@ export async function POST(req: Request) {
             Role: role as UserRole,
             PermanentAddress: permanentAddress,
             Phone: phone,
+            Gender: gender || "OTHER",
             CreatedAt: new Date(),
             UpdatedAt: new Date(),
         };
@@ -51,7 +52,8 @@ export async function POST(req: Request) {
                     password,
                     role: role === "PG_OWNER" ? "PG_OWNER" : "PayingGuest", // Map role if necessary
                     phoneNumber: phone,
-                    permanentAddress: permanentAddress
+                    permanentAddress: permanentAddress,
+                    gender: gender || "OTHER"
                 }),
             });
 

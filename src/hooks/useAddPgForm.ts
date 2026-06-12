@@ -81,17 +81,42 @@ export function useAddPgForm() {
     const [minMonths, setMinMonths] = useState("1");
     const [maxMonths, setMaxMonths] = useState("12");
     const [conditions, setConditions] = useState("");
+    const [genderPreference, setGenderPreference] = useState("ANY");
 
+    const [latitude, setLatitude] = useState("");
+    const [longitude, setLongitude] = useState("");
+    const [googleMapsUrl, setGoogleMapsUrl] = useState("");
+
+    const getCurrentLocation = () => {
+        if (!navigator.geolocation) {
+            setError("Geolocation is not supported by your browser");
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setLatitude(position.coords.latitude.toString());
+                setLongitude(position.coords.longitude.toString());
+                setError("");
+            },
+            (err) => {
+                setError("Unable to retrieve location: " + err.message);
+            }
+        );
+    };
+ 
+    const videoFileRef = useRef<HTMLInputElement>(null);
     const [images, setImages] = useState<File[]>([]);
     const [previews, setPreviews] = useState<string[]>([]);
+    const [videos, setVideos] = useState<File[]>([]);
+    const [videoPreviews, setVideoPreviews] = useState<string[]>([]);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
 
     const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
-        if (images.length + files.length > 10) {
-            setError("Maximum 10 images allowed");
+        if (images.length + files.length > 50) {
+            setError("Maximum 50 images allowed");
             return;
         }
         setImages([...images, ...files]);
@@ -104,22 +129,53 @@ export function useAddPgForm() {
         setPreviews(previews.filter((_, i) => i !== idx));
     };
 
+    const handleVideoFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (videos.length + files.length > 10) {
+            setError("Maximum 10 videos allowed");
+            return;
+        }
+        setVideos([...videos, ...files]);
+        setVideoPreviews([...videoPreviews, ...files.map(f => URL.createObjectURL(f))]);
+        setError("");
+    };
+
+    const removeVideo = (idx: number) => {
+        setVideos(videos.filter((_, i) => i !== idx));
+        setVideoPreviews(videoPreviews.filter((_, i) => i !== idx));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitting(true);
         setError("");
 
         try {
-            const formData = new FormData();
+            // Upload images
+            let imageUrls: string[] = [];
             if (images.length > 0) {
-                formData.append("files", images[0]);
+                const imgFormData = new FormData();
+                images.forEach((img) => imgFormData.append("files", img));
+                const uploadRes = await fetch(`${API_BASE}/upload`, {
+                    method: "POST",
+                    body: imgFormData
+                });
+                if (!uploadRes.ok) throw new Error("Failed to upload images");
+                imageUrls = (await uploadRes.json()).urls || [];
             }
- 
-            const uploadRes = await fetch(`${API_BASE}/upload`, {
-                method: "POST",
-                body: formData
-            });
-            const imageUrls = (await uploadRes.json()).urls || [];
+
+            // Upload videos
+            let videoUrls: string[] = [];
+            if (videos.length > 0) {
+                const vidFormData = new FormData();
+                videos.forEach((vid) => vidFormData.append("files", vid));
+                const uploadRes = await fetch(`${API_BASE}/upload`, {
+                    method: "POST",
+                    body: vidFormData
+                });
+                if (!uploadRes.ok) throw new Error("Failed to upload videos");
+                videoUrls = (await uploadRes.json()).urls || [];
+            }
 
             const body = {
                 OwnerId: (session?.user as any)?.id,
@@ -138,7 +194,12 @@ export function useAddPgForm() {
                     MaxMonths: parseInt(maxMonths),
                     Conditions: conditions,
                 },
+                GenderPreference: genderPreference,
                 Images: imageUrls,
+                Videos: videoUrls,
+                Latitude: latitude ? parseFloat(latitude) : undefined,
+                Longitude: longitude ? parseFloat(longitude) : undefined,
+                GoogleMapsUrl: googleMapsUrl || undefined,
                 IsAcceptingGuests: true
             };
 
@@ -176,20 +237,29 @@ export function useAddPgForm() {
             minMonths, setMinMonths,
             maxMonths, setMaxMonths,
             conditions, setConditions,
+            genderPreference, setGenderPreference,
             images, setImages,
             previews, setPreviews,
+            videos, setVideos,
+            videoPreviews, setVideoPreviews,
+            latitude, setLatitude,
+            longitude, setLongitude,
+            googleMapsUrl, setGoogleMapsUrl,
             submitting, error, success
         },
         handlers: {
             handleFiles,
             removeImage,
+            handleVideoFiles,
+            removeVideo,
             handleSubmit,
             addFloor,
             removeFloor,
             addRoom,
             updateRoom,
-            removeRoom
+            removeRoom,
+            getCurrentLocation
         },
-        refs: { fileRef }
+        refs: { fileRef, videoFileRef }
     };
 }

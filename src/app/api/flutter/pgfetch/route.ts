@@ -13,6 +13,14 @@ export async function GET(req: Request) {
         let query: any = {};
         if (city) query.City = city;
         if (area) query.Area = area;
+        
+        const gender = searchParams.get("gender");
+        if (gender) {
+            query.$or = [
+                { GenderPreference: gender },
+                { GenderPreference: "ANY" }
+            ];
+        }
 
         const listings = await pgCol.find(query).sort({ CreatedAt: -1 }).toArray();
 

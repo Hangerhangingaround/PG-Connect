@@ -5,7 +5,7 @@ export type RoomStatus = "AVAILABLE" | "LOCKED" | "FULL";
 export interface Room {
     RoomId: string;
     RoomNumber: string;
-    Type: "Single" | "Double" | "Triple";
+    Type: "Single" | "Double" | "Triple" | "Quadruple";
     Price: number;
     MaxCapacity: number;
     CurrentOccupancy: number;
@@ -29,6 +29,8 @@ export interface RentAgreement {
     Conditions?: string;
 }
 
+export type GenderPreference = "MALE" | "FEMALE" | "ANY" | "OTHER";
+
 export interface PgListing {
     Id: string;
     OwnerId: string;
@@ -43,9 +45,14 @@ export interface PgListing {
     Equipment?: string[];
     NearbyLandmarks: Landmark[];
     Images: string[];
+    Videos?: string[];
     RentAgreement: RentAgreement;
     Floors: Floor[];
+    GenderPreference: GenderPreference;
     IsVerified: boolean;
+    Latitude?: number;
+    Longitude?: number;
+    GoogleMapsUrl?: string;
     IsAcceptingGuests: boolean;
     CreatedAt: Date;
     UpdatedAt: Date;

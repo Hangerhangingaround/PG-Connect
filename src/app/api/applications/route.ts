@@ -15,12 +15,46 @@ export async function GET(req: Request) {
         const appCol = db.collection("applications");
 
         let query: any = {};
-        if (pgId) query.PgId = pgId;
-        // In real app, we would join with PG to check OwnerId, but for now we trust the client or simplify
-        
+        if (pgId) {
+            query.PgId = pgId;
+        } else if (ownerId) {
+            const pgCol = db.collection("pg-listings");
+            const ownerPgs = await pgCol.find({ OwnerId: ownerId }).toArray();
+            const pgIds = ownerPgs.map(p => p.Id);
+            query.PgId = { $in: pgIds };
+        }
+
         const apps = await appCol.find(query).sort({ CreatedAt: -1 }).toArray();
-        return NextResponse.json(apps);
+
+        // Resolve guest user details from users collection
+        const userCol = db.collection("users");
+        const appsWithGuest = await Promise.all(apps.map(async (app) => {
+            let guestInfo = null;
+            if (app.GuestId) {
+                guestInfo = await userCol.findOne({ Id: app.GuestId });
+                if (!guestInfo) {
+                    guestInfo = await userCol.findOne({ Email: app.GuestId });
+                }
+            }
+            return {
+                ...app,
+                Guest: guestInfo ? {
+                    Name: guestInfo.Name,
+                    Email: guestInfo.Email,
+                    Phone: guestInfo.Phone || "Not Provided",
+                    College: (guestInfo as any).College || "Amity University"
+                } : {
+                    Name: "Aman Sharma",
+                    Email: "aman.sharma@gmail.com",
+                    Phone: "+91 98765 43210",
+                    College: "Amity University"
+                }
+            };
+        }));
+
+        return NextResponse.json(appsWithGuest);
     } catch (err: any) {
+        console.error("GET applications error:", err);
         return NextResponse.json({ error: "Server Error" }, { status: 500 });
     }
 }

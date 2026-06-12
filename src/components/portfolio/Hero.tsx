@@ -5,8 +5,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Container } from "./Container";
 import { HeroStats } from "@/components/portfolio/HeroStats";
+import { SearchBar } from "@/components/portfolio/SearchBar";
 
-export const Hero: React.FC = () => {
+interface HeroProps {
+  onSearch?: (city: string, minPrice: string, maxPrice: string, gender: string) => void;
+}
+
+export const Hero: React.FC<HeroProps> = ({ onSearch }) => {
   return (
     <div style={{ position: "relative", overflow: "hidden", background: "white" }}>
       <Container size="xl">
@@ -56,13 +61,8 @@ export const Hero: React.FC = () => {
             Discover verified PGs, compare amenities, and connect directly with owners — all in one place. Your home away from home is just a click away.
           </p>
           
-          <div style={{ display: "flex", gap: "16px", marginBottom: "60px", flexWrap: "wrap", justifyContent: "center" }}>
-            <Link href="/login">
-              <Button size="lg">🔴 Find PG Near You</Button>
-            </Link>
-            <Link href="/add-pg">
-              <Button variant="outline" size="lg">⚪ List Your Property</Button>
-            </Link>
+          <div style={{ width: "100%", marginBottom: "60px", zIndex: 10, position: "relative" }}>
+            <SearchBar onSearch={onSearch} />
           </div>
 
           <HeroStats />

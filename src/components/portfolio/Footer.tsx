@@ -44,15 +44,15 @@ export const Footer: React.FC = () => {
           </div>
           
           <FooterColumn title="Product" links={[
-            { label: "Browse PGs", href: "/" },
-            { label: "List Property", href: "/add-pg" },
+            { label: "Browse PGs", href: "/#explore" },
+            { label: "List Property", href: "/owner/add-pg" },
             { label: "Top Rated", href: "#" },
             { label: "New Launches", href: "#" }
           ]} />
           
           <FooterColumn title="Company" links={[
-            { label: "About Us", href: "#" },
-            { label: "Contact", href: "#" },
+            { label: "About Us", href: "/#about" },
+            { label: "Contact", href: "/#contact" },
             { label: "Careers", href: "#" },
             { label: "Press", href: "#" }
           ]} />

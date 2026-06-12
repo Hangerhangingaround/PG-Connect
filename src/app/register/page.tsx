@@ -9,9 +9,11 @@ import { TextArea } from "@/components/ui/TextArea";
 import { Navbar } from "@/components/portfolio/Navbar";
 import { UserRole } from "@/models/User";
 import { useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
 
 export default function RegisterPage() {
     const router = useRouter();
+    const { data: session, status } = useSession();
     const [role, setRole] = useState<UserRole>("PAYING_GUEST");
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -19,9 +21,20 @@ export default function RegisterPage() {
     const [permanentAddress, setPermanentAddress] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [gender, setGender] = useState("OTHER");
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
+
+    React.useEffect(() => {
+        if (status === "authenticated" && session?.user) {
+            if ((session.user as any).role === "PG_OWNER") {
+                router.push("/owner/dashboard");
+            } else {
+                router.push("/");
+            }
+        }
+    }, [status, session, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -44,19 +57,37 @@ export default function RegisterPage() {
                     password,
                     role,
                     permanentAddress,
-                    phone
+                    phone,
+                    gender
                 }),
             });
 
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Registration failed");
 
-            setSuccess(true);
-            
-            // REDIRECTION LOGIC (Now requiring manual login for security or auto-signin)
-            setTimeout(() => {
-                router.push("/login");
-            }, 3000);
+            // Auto sign-in
+            const signInRes = await signIn("credentials", {
+                email,
+                password,
+                redirect: false,
+            });
+
+            if (signInRes?.error) {
+                console.error("[AUTO-LOGIN] Failed:", signInRes.error);
+                setError("Account created, but automatic sign-in failed. Please login manually.");
+                setTimeout(() => {
+                    router.push("/login");
+                }, 2000);
+            } else {
+                setSuccess(true);
+                setTimeout(() => {
+                    if (role === "PG_OWNER") {
+                        router.push("/owner/dashboard");
+                    } else {
+                        router.push("/");
+                    }
+                }, 2000);
+            }
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -125,6 +156,20 @@ export default function RegisterPage() {
                         <Input label="Full Name" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} required />
                         <Input label="Email Address" type="email" placeholder="john@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
                         <Input label="Phone Number" placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+
+                        <div>
+                            <label style={{ fontSize: "0.875rem", fontWeight: 600, display: "block", marginBottom: "8px" }}>Gender</label>
+                            <select 
+                                value={gender} 
+                                onChange={(e) => setGender(e.target.value)}
+                                style={{ width: "100%", padding: "12px", border: "1px solid var(--border-light)", borderRadius: "12px", outline: "none", fontSize: "0.95rem" }}
+                            >
+                                <option value="MALE">Male</option>
+                                <option value="FEMALE">Female</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                        
                         <TextArea 
                             label="Permanent Address" 
                             placeholder="Your home address for verification" 

@@ -13,7 +13,16 @@ export async function GET(req: Request) {
         const db = await getDb();
         const pgCol = db.collection("pg-listings");
  
-        const query = ownerId ? { OwnerId: ownerId } : {};
+        let query: any = ownerId ? { OwnerId: ownerId } : {};
+        
+        const gender = searchParams.get("gender");
+        if (gender) {
+            query.$or = [
+                { GenderPreference: gender },
+                { GenderPreference: "ANY" }
+            ];
+        }
+
         const listings = await pgCol.find(query).sort({ CreatedAt: -1 }).toArray();
  
         return NextResponse.json(listings);
@@ -40,6 +49,7 @@ export async function POST(req: Request) {
             ...body,
             OwnerId: (session.user as any).id,
             Id: crypto.randomUUID(),
+            GenderPreference: body.GenderPreference || "ANY",
             CreatedAt: new Date(),
             UpdatedAt: new Date(),
             IsVerified: false,

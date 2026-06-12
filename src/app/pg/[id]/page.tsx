@@ -8,7 +8,6 @@ import { Container } from "@/components/portfolio/Container";
 import { Section } from "@/components/portfolio/Section";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/portfolio/Badge";
-import { Rating } from "@/components/portfolio/Rating";
 import { Footer } from "@/components/portfolio/Footer";
 
 export default function PGDetailPage() {
@@ -63,8 +62,6 @@ export default function PGDetailPage() {
                     <div>
                         <h1 style={{ fontSize: "2.25rem", fontWeight: 800, color: "var(--text)", marginBottom: "8px", letterSpacing: "-1px" }}>{pg.Title}</h1>
                         <div style={{ display: "flex", alignItems: "center", gap: "16px", color: "var(--text-secondary)", fontSize: "0.95rem" }}>
-                            <Rating value={4.9} />
-                            <span>•</span>
                             <span style={{ textDecoration: "underline", fontWeight: 600 }}>{pg.Area}, {pg.City}</span>
                             <span>•</span>
                             <Badge variant="success">Verified Property</Badge>
@@ -165,6 +162,46 @@ export default function PGDetailPage() {
                                 {(!pg.NearbyLandmarks || pg.NearbyLandmarks.length === 0) && <p style={{ color: "var(--text-secondary)" }}>No landmarks nearby.</p>}
                             </div>
                         </div>
+
+                        {/* Videos */}
+                        {pg.Videos && pg.Videos.length > 0 && (
+                            <div style={{ paddingBottom: "32px", borderBottom: "1px solid var(--border-light)", marginBottom: "32px" }}>
+                                <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--text)", marginBottom: "24px" }}>Virtual Tour / Videos</h2>
+                                <div style={{ display: "grid", gridTemplateColumns: pg.Videos.length === 1 ? "1fr" : "1fr 1fr", gap: "20px" }}>
+                                    {pg.Videos.map((vid: string, i: number) => (
+                                        <div key={i} style={{ borderRadius: "16px", overflow: "hidden", border: "1px solid var(--border-light)", background: "black", aspectRatio: "1.77" }}>
+                                            <video src={vid} style={{ width: "100%", height: "100%" }} controls />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Location Map */}
+                        {((pg.Latitude && pg.Longitude) || pg.GoogleMapsUrl) && (
+                            <div style={{ paddingBottom: "32px", borderBottom: "1px solid var(--border-light)", marginBottom: "32px" }}>
+                                <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--text)", marginBottom: "24px" }}>Location Map</h2>
+                                <div style={{ width: "100%", height: "350px", borderRadius: "16px", overflow: "hidden", border: "1px solid var(--border-light)", marginBottom: "16px" }}>
+                                    <iframe
+                                        width="100%"
+                                        height="100%"
+                                        style={{ border: 0 }}
+                                        loading="lazy"
+                                        allowFullScreen
+                                        src={
+                                            pg.Latitude && pg.Longitude
+                                                ? `https://maps.google.com/maps?q=${pg.Latitude},${pg.Longitude}&t=&z=15&ie=UTF8&iwloc=&output=embed`
+                                                : `https://maps.google.com/maps?q=${encodeURIComponent(pg.GoogleMapsUrl || "")}&t=&z=15&ie=UTF8&iwloc=&output=embed`
+                                        }
+                                    />
+                                </div>
+                                {pg.GoogleMapsUrl && (
+                                    <a href={pg.GoogleMapsUrl} target="_blank" rel="noopener noreferrer">
+                                        <Button variant="outline">🌐 Open in Google Maps</Button>
+                                    </a>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     {/* 4. Sticky Sidebar */}
@@ -180,9 +217,6 @@ export default function PGDetailPage() {
                                 <div>
                                     <span style={{ fontSize: "1.5rem", fontWeight: 800 }}>₹{pg.Rent}</span>
                                     <span style={{ color: "var(--text-secondary)" }}> / month</span>
-                                </div>
-                                <div style={{ fontSize: "0.85rem", fontWeight: 700 }}>
-                                    ★ 4.9 · 12 reviews
                                 </div>
                             </div>
 

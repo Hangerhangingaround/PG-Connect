@@ -29,7 +29,7 @@ export const MobileImageUpload: React.FC<MobileImageUploadProps> = ({
           marginBottom: "12px",
         }}
       >
-        Photos ({images.length}/10)
+        Photos ({images.length}/50)
       </label>
       
       <div

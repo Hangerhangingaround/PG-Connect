@@ -4,7 +4,6 @@ import React from "react";
 import Link from "next/link";
 import { Card } from "../ui/Card";
 import { Badge } from "./Badge";
-import { Rating } from "@/components/portfolio/Rating";
 
 interface PGCardProps {
   id: string;
@@ -63,9 +62,8 @@ export const PGCard: React.FC<PGCardProps> = ({
           </div>
         </div>
         <div style={{ padding: "20px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
+          <div style={{ marginBottom: "8px" }}>
             <h3 style={{ fontSize: "1.125rem", fontWeight: 700, color: "var(--text)" }}>{name}</h3>
-            <Rating value={rating} />
           </div>
           <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "12px", display: "flex", alignItems: "center", gap: "4px" }}>
             📍 {location}

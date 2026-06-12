@@ -7,13 +7,21 @@ import { Navbar } from "@/components/portfolio/Navbar";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { PgListing, RoomStatus, Floor, Room, PgApplication } from "@/models";
  
 // Real data fetched via useEffect
  
 export default function OwnerDashboard() {
+    const router = useRouter();
     const { data: session, status } = useSession();
     const [selectedPgId, setSelectedPgId] = useState<string | null>(null);
+
+    React.useEffect(() => {
+        if (status === "unauthenticated") {
+            router.push("/login");
+        }
+    }, [status, router]);
     const [pgs, setPgs] = useState<PgListing[]>([]);
     const [applications, setApplications] = useState<PgApplication[]>([]);
     const [loading, setLoading] = useState(true);

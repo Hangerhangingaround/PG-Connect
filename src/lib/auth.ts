@@ -3,6 +3,9 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { getDb } from "@/lib/mongodb";
 import bcrypt from "bcryptjs";
 
+console.log("[DEBUG] NEXTAUTH_SECRET is:", process.env.NEXTAUTH_SECRET ? "DEFINED" : "UNDEFINED");
+console.log("[DEBUG] MONGODB_URI is:", process.env.MONGODB_URI ? "DEFINED" : "UNDEFINED");
+
 export const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
@@ -107,4 +110,15 @@ export const authOptions: NextAuthOptions = {
         strategy: "jwt",
     },
     secret: process.env.NEXTAUTH_SECRET,
+    logger: {
+        error(code, metadata) {
+            console.error("[NEXTAUTH_ERROR]", code, metadata);
+        },
+        warn(code) {
+            console.warn("[NEXTAUTH_WARN]", code);
+        },
+        debug(code, metadata) {
+            console.log("[NEXTAUTH_DEBUG]", code, metadata);
+        }
+    },
 };
