@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Container } from "./Container";
@@ -69,20 +71,77 @@ export const Navbar: React.FC = () => {
           
           {/* Desktop Menu */}
           <div style={{ display: isMobile ? "none" : "flex", alignItems: "center", gap: "32px" }}>
-            {mounted && role === "PG_OWNER" ? (
-              <>
-                <Link href="/" style={navLinkStyle}>Dashboard</Link>
-                <Link href="/?tab=guide" style={navLinkStyle}>How it Works</Link>
-              </>
-            ) : (
-              <>
-                <Link href="/" style={navLinkStyle}>Home</Link>
-                <Link href="/#explore" style={navLinkStyle}>Browse PGs</Link>
-                <Link href="/#how-it-works" style={navLinkStyle}>How it Works</Link>
-                <Link href="/#about" style={navLinkStyle}>About</Link>
-              </>
+            {mounted && role === "PG_OWNER" && (
+              <Link href="/dashboard/pg-owner" style={navLinkStyle}>Dashboard</Link>
             )}
+            {mounted && role === "PAYING_GUEST" && (
+              <Link href="/dashboard/paying-guest" style={navLinkStyle}>Dashboard</Link>
+            )}
+            <Link href="/" style={navLinkStyle}>Home</Link>
             
+            {/* Explore More Dropdown */}
+            <div style={{ position: "relative", display: "flex", alignItems: "center", cursor: "pointer" }}
+                 onMouseEnter={(e) => {
+                   const dropdown = e.currentTarget.querySelector('.dropdown-menu');
+                   if (dropdown) (dropdown as HTMLElement).style.display = 'block';
+                   if (dropdown) (dropdown as HTMLElement).style.opacity = '1';
+                   if (dropdown) (dropdown as HTMLElement).style.transform = 'translateY(0)';
+                 }}
+                 onMouseLeave={(e) => {
+                   const dropdown = e.currentTarget.querySelector('.dropdown-menu');
+                   if (dropdown) (dropdown as HTMLElement).style.display = 'none';
+                   if (dropdown) (dropdown as HTMLElement).style.opacity = '0';
+                   if (dropdown) (dropdown as HTMLElement).style.transform = 'translateY(10px)';
+                 }}
+            >
+              <span style={{ ...navLinkStyle, display: "flex", alignItems: "center", gap: "4px" }}>
+                Explore More
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </span>
+              <div 
+                className="dropdown-menu"
+                style={{ 
+                  position: "absolute", 
+                  top: "100%", 
+                  left: "-20px", 
+                  background: "white", 
+                  boxShadow: "0 10px 40px rgba(0,0,0,0.1)", 
+                  borderRadius: "16px", 
+                  padding: "16px",
+                  width: "280px",
+                  display: "none",
+                  opacity: 0,
+                  transform: "translateY(10px)",
+                  transition: "all 0.2s ease",
+                  border: "1px solid rgba(0,0,0,0.05)",
+                  marginTop: "16px"
+                }}
+              >
+                {[
+                  { name: "Student Experience", id: "#experience" },
+                  { name: "Creator Economy", id: "#creator" },
+                  { name: "Vendor & Delivery System", id: "#ops" },
+                  { name: "Smart Supply Chain (AI)", id: "#ai" },
+                  { name: "Campus Ecosystem", id: "#campus" }
+                ].map(item => (
+                  <Link key={item.name} href={item.id} style={{ 
+                    display: "block", 
+                    padding: "12px 16px", 
+                    textDecoration: "none", 
+                    color: "var(--text)", 
+                    fontWeight: 600, 
+                    fontSize: "0.9rem",
+                    borderRadius: "8px",
+                    transition: "background 0.2s"
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-secondary)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
             {mounted && status === "authenticated" && session?.user ? (
               <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
                 <div 
@@ -128,7 +187,7 @@ export const Navbar: React.FC = () => {
               </div>
             ) : (
               <>
-                <Link href="/owner/add-pg">
+                <Link href="/dashboard/pg-owner/add-pg">
                   <Button size="sm">List your PG</Button>
                 </Link>
                 <Link href="/login">
@@ -359,9 +418,16 @@ export const Navbar: React.FC = () => {
               ))}
             </div>
 
-            <Button variant="primary" fullWidth onClick={() => setShowAccountModal(false)} style={{ marginTop: "8px" }}>
-              Close Window
-            </Button>
+            <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
+              <Link href={(session?.user as any)?.role === "PG_OWNER" ? "/dashboard/pg-owner" : "/dashboard/paying-guest"} style={{ flex: 1, textDecoration: "none" }} onClick={() => setShowAccountModal(false)}>
+                <Button variant="primary" fullWidth>
+                  Go to Dashboard
+                </Button>
+              </Link>
+              <Button variant="outline" onClick={() => setShowAccountModal(false)} style={{ flex: 1 }}>
+                Close
+              </Button>
+            </div>
           </div>
         </div>
       )}

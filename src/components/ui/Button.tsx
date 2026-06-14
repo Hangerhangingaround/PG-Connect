@@ -72,6 +72,9 @@ export const Button: React.FC<ButtonProps> = ({
     ...baseStyles,
     ...variants[variant],
     ...sizes[size],
+    opacity: props.disabled ? 0.5 : 1,
+    cursor: props.disabled ? "not-allowed" : "pointer",
+    pointerEvents: props.disabled ? "none" : "auto" as any,
     ...style,
   };
 

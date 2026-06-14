@@ -82,7 +82,9 @@ export default function RegisterPage() {
                 setSuccess(true);
                 setTimeout(() => {
                     if (role === "PG_OWNER") {
-                        router.push("/owner/dashboard");
+                        router.push("/dashboard/pg-owner");
+                    } else if (role === "PAYING_GUEST") {
+                        router.push("/dashboard/paying-guest");
                     } else {
                         router.push("/");
                     }
