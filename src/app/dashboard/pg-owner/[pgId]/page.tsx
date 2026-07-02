@@ -9,10 +9,10 @@ import { Card } from "@/components/ui/Card";
 import Link from "next/link";
 import { ChevronLeft, MapPin, BadgeCheck, Users, BedDouble } from "lucide-react";
 
-export default async function PgDetailPage({ params }: { params: { pgId: string } }) {
+export default async function PgDetailPage({ params }: { params: Promise<{ pgId: string }> }) {
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
-    const { pgId } = params;
+    const { pgId } = await params;
 
     const [pg, applications] = await Promise.all([
         getPgById(pgId),
