@@ -29,7 +29,7 @@ export default function RegisterPage() {
     React.useEffect(() => {
         if (status === "authenticated" && session?.user) {
             if ((session.user as any).role === "PG_OWNER") {
-                router.push("/owner/dashboard");
+                router.push("/dashboard/pg-owner");
             } else {
                 router.push("/");
             }

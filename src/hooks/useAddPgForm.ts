@@ -151,30 +151,48 @@ export function useAddPgForm() {
         setError("");
 
         try {
-            // Upload images
+            // Upload images one by one to avoid payload limits
             let imageUrls: string[] = [];
             if (images.length > 0) {
-                const imgFormData = new FormData();
-                images.forEach((img) => imgFormData.append("files", img));
-                const uploadRes = await fetch(`${API_BASE}/upload`, {
-                    method: "POST",
-                    body: imgFormData
-                });
-                if (!uploadRes.ok) throw new Error("Failed to upload images");
-                imageUrls = (await uploadRes.json()).urls || [];
+                for (let i = 0; i < images.length; i++) {
+                    const img = images[i];
+                    const imgFormData = new FormData();
+                    imgFormData.append("files", img);
+                    const uploadRes = await fetch(`${API_BASE}/upload`, {
+                        method: "POST",
+                        body: imgFormData
+                    });
+                    if (!uploadRes.ok) {
+                        const errorData = await uploadRes.json().catch(() => ({}));
+                        throw new Error(errorData.error || `Failed to upload image ${i + 1}: ${img.name}`);
+                    }
+                    const data = await uploadRes.json();
+                    if (data.urls && data.urls.length > 0) {
+                        imageUrls.push(...data.urls);
+                    }
+                }
             }
 
-            // Upload videos
+            // Upload videos one by one to avoid payload limits
             let videoUrls: string[] = [];
             if (videos.length > 0) {
-                const vidFormData = new FormData();
-                videos.forEach((vid) => vidFormData.append("files", vid));
-                const uploadRes = await fetch(`${API_BASE}/upload`, {
-                    method: "POST",
-                    body: vidFormData
-                });
-                if (!uploadRes.ok) throw new Error("Failed to upload videos");
-                videoUrls = (await uploadRes.json()).urls || [];
+                for (let i = 0; i < videos.length; i++) {
+                    const vid = videos[i];
+                    const vidFormData = new FormData();
+                    vidFormData.append("files", vid);
+                    const uploadRes = await fetch(`${API_BASE}/upload`, {
+                        method: "POST",
+                        body: vidFormData
+                    });
+                    if (!uploadRes.ok) {
+                        const errorData = await uploadRes.json().catch(() => ({}));
+                        throw new Error(errorData.error || `Failed to upload video ${i + 1}: ${vid.name}`);
+                    }
+                    const data = await uploadRes.json();
+                    if (data.urls && data.urls.length > 0) {
+                        videoUrls.push(...data.urls);
+                    }
+                }
             }
 
             const body = {
@@ -209,7 +227,10 @@ export function useAddPgForm() {
                 body: JSON.stringify(body),
             });
 
-            if (!res.ok) throw new Error("Failed to create listing");
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.error || "Failed to create listing");
+            }
             setSuccess(true);
             setTimeout(() => router.push("/"), 2000);
         } catch (err: unknown) {
