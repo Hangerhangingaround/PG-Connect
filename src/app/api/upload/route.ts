@@ -13,6 +13,12 @@ export async function POST(req: NextRequest) {
         if (files.length > 50) {
             return NextResponse.json({ error: "Maximum 50 files allowed" }, { status: 400 });
         }
+        if (!cloudinary.config().api_key) {
+            return NextResponse.json(
+                { error: "Cloudinary is not configured. Please set the CLOUDINARY_URL environment variable." },
+                { status: 500 }
+            );
+        }
 
         const db = await getDb();
         const mediaCol = db.collection("media");
@@ -31,33 +37,9 @@ export async function POST(req: NextRequest) {
                 uploadOptions.transformation = [{ quality: "auto", fetch_format: "auto" }];
             }
 
-            let fileUrl = "";
-            let publicId = "";
-
-            try {
-                // If api_key is missing, throw to fallback directly
-                if (!cloudinary.config().api_key) {
-                    throw new Error("Cloudinary api_key is missing");
-                }
-                const result = await cloudinary.uploader.upload(base64, uploadOptions);
-                fileUrl = result.secure_url;
-                publicId = result.public_id;
-            } catch (cloudErr) {
-                console.warn("Cloudinary upload failed, falling back to local storage:", cloudErr);
-                
-                const fs = require("fs").promises;
-                const path = require("path");
-                const uploadDir = path.join(process.cwd(), "public", "uploads");
-                await fs.mkdir(uploadDir, { recursive: true });
-                
-                const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-                const filename = `${Date.now()}-${safeName}`;
-                const filepath = path.join(uploadDir, filename);
-                
-                await fs.writeFile(filepath, buffer);
-                fileUrl = `/uploads/${filename}`;
-                publicId = `local-${filename}`;
-            }
+            const result = await cloudinary.uploader.upload(base64, uploadOptions);
+            const fileUrl = result.secure_url;
+            const publicId = result.public_id;
 
             // Store metadata in MongoDB
             await mediaCol.insertOne({
