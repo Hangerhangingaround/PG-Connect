@@ -427,8 +427,8 @@ function LandingPageContent() {
         body: formData
       });
       if (uploadRes.ok) {
-        const urls = await uploadRes.json();
-        const updatedImages = [...(activePg.Images || []), ...urls];
+        const data = await uploadRes.json();
+        const updatedImages = [...(activePg.Images || []), ...data.urls];
         const updatedPg = { ...activePg, Images: updatedImages };
 
         const res = await fetch(`/api/pg-listings/${selectedPgId}`, {
@@ -442,6 +442,69 @@ function LandingPageContent() {
       }
     } catch (err) {
       console.error("Photo upload error:", err);
+    }
+  };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !selectedPgId || !activePg) return;
+
+    const currentCount = activePg.Videos?.length || 0;
+    if (currentCount + files.length > 10) {
+      alert(`You can only have up to 10 videos. You currently have ${currentCount} videos, and are trying to upload ${files.length} more.`);
+      return;
+    }
+
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+      formData.append("files", files[i]);
+    }
+
+    try {
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData
+      });
+      if (uploadRes.ok) {
+        const data = await uploadRes.json();
+        const updatedVideos = [...(activePg.Videos || []), ...data.urls];
+        const updatedPg = { ...activePg, Videos: updatedVideos };
+
+        const res = await fetch(`/api/pg-listings/${selectedPgId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedPg)
+        });
+        if (res.ok) {
+          await fetchOwnerData();
+        }
+      } else {
+        const errorData = await uploadRes.json().catch(() => ({}));
+        alert(errorData.error || "Failed to upload video");
+      }
+    } catch (err) {
+      console.error("Video upload error:", err);
+    }
+  };
+
+  const handleDeleteVideo = async (index: number) => {
+    if (!selectedPgId || !activePg || !activePg.Videos) return;
+    if (!confirm("Remove this video?")) return;
+
+    const updatedVideos = activePg.Videos.filter((_: any, i: number) => i !== index);
+    const updatedPg = { ...activePg, Videos: updatedVideos };
+
+    try {
+      const res = await fetch(`/api/pg-listings/${selectedPgId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedPg)
+      });
+      if (res.ok) {
+        await fetchOwnerData();
+      }
+    } catch (err) {
+      console.error("Delete video error:", err);
     }
   };
 
@@ -1317,6 +1380,40 @@ function LandingPageContent() {
                             <Button type="submit" size="sm">Add Link</Button>
                           </div>
                         </form>
+                      </div>
+
+                      <div style={{ background: "white", padding: "32px", borderRadius: "24px", border: "1px solid var(--border-light)", boxShadow: "var(--shadow-sm)" }}>
+                        <h2 style={{ fontSize: "1.4rem", fontWeight: 800, marginBottom: "8px" }}>Video Gallery</h2>
+                        <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", marginBottom: "20px" }}>Upload and delete virtual tours or videos for your PG listing.</p>
+                        
+                        {activePg.Videos && activePg.Videos.length > 0 && (
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "12px", marginBottom: "24px" }}>
+                            {activePg.Videos.map((url: string, index: number) => (
+                              <div key={index} style={{ position: "relative", borderRadius: "12px", overflow: "hidden", aspectRatio: 1.77, border: "1px solid var(--border)", background: "black" }}>
+                                <video src={url} style={{ width: "100%", height: "100%", objectFit: "cover" }} controls />
+                                <button 
+                                  onClick={() => handleDeleteVideo(index)}
+                                  style={{ position: "absolute", top: "6px", right: "6px", background: "#c5221f", color: "white", border: "none", width: "20px", height: "20px", borderRadius: "50%", cursor: "pointer", fontSize: "0.7rem", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10 }}
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
+                        <div style={{ border: "2px dashed var(--border)", borderRadius: "16px", padding: "24px", textAlign: "center", position: "relative" }}>
+                          <span style={{ fontSize: "2rem" }}>🎥</span>
+                          <h4 style={{ fontSize: "0.9rem", fontWeight: 700, marginTop: "8px" }}>Upload new videos</h4>
+                          <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "2px" }}>MP4 or WEBM (max limit 10 videos, max 20MB each)</p>
+                          <input 
+                            type="file" 
+                            multiple 
+                            accept="video/*"
+                            onChange={handleVideoUpload}
+                            style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }} 
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
