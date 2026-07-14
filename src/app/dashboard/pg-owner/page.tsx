@@ -45,40 +45,46 @@ export default async function OwnerDashboard() {
 
             {/* Quick Stats */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "24px", marginBottom: "40px" }}>
-                <Card padding="24px">
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
-                        <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "rgba(255, 56, 92, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
-                            <Building2 size={22} />
+                <Link href="/dashboard/pg-owner/properties" style={{ textDecoration: "none", color: "inherit" }}>
+                    <Card padding="24px" hover style={{ cursor: "pointer", height: "100%" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
+                            <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "rgba(255, 56, 92, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
+                                <Building2 size={22} />
+                            </div>
+                            <span style={{ color: "#10b981", fontSize: "0.875rem", fontWeight: 700 }}>+2 New</span>
                         </div>
-                        <span style={{ color: "#10b981", fontSize: "0.875rem", fontWeight: 700 }}>+2 New</span>
-                    </div>
-                    <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: 500 }}>Total Properties</span>
-                    <h2 style={{ fontSize: "1.75rem", fontWeight: 800, marginTop: "4px" }}>{pgs.length}</h2>
-                </Card>
+                        <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: 500 }}>Total Properties</span>
+                        <h2 style={{ fontSize: "1.75rem", fontWeight: 800, marginTop: "4px" }}>{pgs.length}</h2>
+                    </Card>
+                </Link>
 
-                <Card padding="24px">
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
-                        <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "rgba(16, 185, 129, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#10b981" }}>
-                            <Users size={22} />
+                <Link href="/dashboard/pg-owner/properties" style={{ textDecoration: "none", color: "inherit" }}>
+                    <Card padding="24px" hover style={{ cursor: "pointer", height: "100%" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
+                            <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "rgba(16, 185, 129, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#10b981" }}>
+                                <Users size={22} />
+                            </div>
+                            <span style={{ color: "#10b981", fontSize: "0.875rem", fontWeight: 700 }}>
+                                {((totalOccupancy.occupied / (totalOccupancy.total || 1)) * 100).toFixed(0)}%
+                            </span>
                         </div>
-                        <span style={{ color: "#10b981", fontSize: "0.875rem", fontWeight: 700 }}>
-                            {((totalOccupancy.occupied / (totalOccupancy.total || 1)) * 100).toFixed(0)}%
-                        </span>
-                    </div>
-                    <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: 500 }}>Global Occupancy</span>
-                    <h2 style={{ fontSize: "1.75rem", fontWeight: 800, marginTop: "4px" }}>{totalOccupancy.occupied} / {totalOccupancy.total}</h2>
-                </Card>
+                        <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: 500 }}>Global Occupancy</span>
+                        <h2 style={{ fontSize: "1.75rem", fontWeight: 800, marginTop: "4px" }}>{totalOccupancy.occupied} / {totalOccupancy.total}</h2>
+                    </Card>
+                </Link>
 
-                <Card padding="24px">
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
-                        <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "rgba(245, 158, 11, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#f59e0b" }}>
-                            <FileText size={22} />
+                <Link href="/dashboard/pg-owner/applications" style={{ textDecoration: "none", color: "inherit" }}>
+                    <Card padding="24px" hover style={{ cursor: "pointer", height: "100%" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
+                            <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "rgba(245, 158, 11, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#f59e0b" }}>
+                                <FileText size={22} />
+                            </div>
+                            {pendingApplications > 0 && <span style={{ color: "#f59e0b", fontSize: "0.875rem", fontWeight: 700 }}>Action Required</span>}
                         </div>
-                        {pendingApplications > 0 && <span style={{ color: "#f59e0b", fontSize: "0.875rem", fontWeight: 700 }}>Action Required</span>}
-                    </div>
-                    <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: 500 }}>Pending Applications</span>
-                    <h2 style={{ fontSize: "1.75rem", fontWeight: 800, marginTop: "4px" }}>{pendingApplications}</h2>
-                </Card>
+                        <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: 500 }}>Pending Applications</span>
+                        <h2 style={{ fontSize: "1.75rem", fontWeight: 800, marginTop: "4px" }}>{pendingApplications}</h2>
+                    </Card>
+                </Link>
             </div>
 
             <h3 style={{ fontSize: "1.5rem", fontWeight: 800, marginBottom: "24px" }}>Your Properties</h3>

@@ -11,6 +11,12 @@ export interface Room {
     CurrentOccupancy: number;
     Status: RoomStatus;
     GuestIds: string[];
+    Guests?: {
+        Id: string;
+        Name: string;
+        Email: string;
+        Phone?: string;
+    }[];
 }
 
 export interface Floor {

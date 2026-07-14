@@ -1,5 +1,5 @@
 import React from "react";
-import { Card } from "@/components/ui/Card";
+import { SettingsPanel } from "@/components/dashboard/SettingsPanel";
 
 export default function OwnerSettingsPage() {
     return (
@@ -8,9 +8,7 @@ export default function OwnerSettingsPage() {
                 <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "var(--text)", marginBottom: "8px" }}>Settings</h1>
                 <p style={{ color: "var(--text-secondary)" }}>Manage your account and notification preferences.</p>
             </div>
-            <Card padding="32px">
-                <p>Settings configuration coming soon.</p>
-            </Card>
+            <SettingsPanel />
         </div>
     );
 }

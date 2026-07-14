@@ -79,69 +79,7 @@ export const Navbar: React.FC = () => {
             )}
             <Link href="/" style={navLinkStyle}>Home</Link>
             
-            {/* Explore More Dropdown */}
-            <div style={{ position: "relative", display: "flex", alignItems: "center", cursor: "pointer" }}
-                 onMouseEnter={(e) => {
-                   const dropdown = e.currentTarget.querySelector('.dropdown-menu');
-                   if (dropdown) (dropdown as HTMLElement).style.display = 'block';
-                   if (dropdown) (dropdown as HTMLElement).style.opacity = '1';
-                   if (dropdown) (dropdown as HTMLElement).style.transform = 'translateY(0)';
-                 }}
-                 onMouseLeave={(e) => {
-                   const dropdown = e.currentTarget.querySelector('.dropdown-menu');
-                   if (dropdown) (dropdown as HTMLElement).style.display = 'none';
-                   if (dropdown) (dropdown as HTMLElement).style.opacity = '0';
-                   if (dropdown) (dropdown as HTMLElement).style.transform = 'translateY(10px)';
-                 }}
-            >
-              <span style={{ ...navLinkStyle, display: "flex", alignItems: "center", gap: "4px" }}>
-                Explore More
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-              </span>
-              <div 
-                className="dropdown-menu"
-                style={{ 
-                  position: "absolute", 
-                  top: "100%", 
-                  left: "-20px", 
-                  background: "white", 
-                  boxShadow: "0 10px 40px rgba(0,0,0,0.1)", 
-                  borderRadius: "16px", 
-                  padding: "16px",
-                  width: "280px",
-                  display: "none",
-                  opacity: 0,
-                  transform: "translateY(10px)",
-                  transition: "all 0.2s ease",
-                  border: "1px solid rgba(0,0,0,0.05)",
-                  marginTop: "16px"
-                }}
-              >
-                {[
-                  { name: "Student Experience", id: "#experience" },
-                  { name: "Creator Economy", id: "#creator" },
-                  { name: "Vendor & Delivery System", id: "#ops" },
-                  { name: "Smart Supply Chain (AI)", id: "#ai" },
-                  { name: "Campus Ecosystem", id: "#campus" }
-                ].map(item => (
-                  <Link key={item.name} href={item.id} style={{ 
-                    display: "block", 
-                    padding: "12px 16px", 
-                    textDecoration: "none", 
-                    color: "var(--text)", 
-                    fontWeight: 600, 
-                    fontSize: "0.9rem",
-                    borderRadius: "8px",
-                    transition: "background 0.2s"
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-secondary)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
+            <Link href="/our-app" style={navLinkStyle}>Our App</Link>
             {mounted && status === "authenticated" && session?.user ? (
               <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
                 <div 
@@ -257,11 +195,13 @@ export const Navbar: React.FC = () => {
               {mounted && role === "PG_OWNER" ? (
                 <>
                   <Link href="/" style={navLinkStyle} onClick={handleLinkClick}>Dashboard</Link>
+                  <Link href="/our-app" style={navLinkStyle} onClick={handleLinkClick}>Our App</Link>
                   <Link href="/?tab=guide" style={navLinkStyle} onClick={handleLinkClick}>How it Works</Link>
                 </>
               ) : (
                 <>
                   <Link href="/" style={navLinkStyle} onClick={handleLinkClick}>Home</Link>
+                  <Link href="/our-app" style={navLinkStyle} onClick={handleLinkClick}>Our App</Link>
                   <Link href="/#explore" style={navLinkStyle} onClick={handleLinkClick}>Browse PGs</Link>
                   <Link href="/#how-it-works" style={navLinkStyle} onClick={handleLinkClick}>How it Works</Link>
                   <Link href="/#about" style={navLinkStyle} onClick={handleLinkClick}>About</Link>

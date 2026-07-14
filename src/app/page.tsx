@@ -19,17 +19,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 import { CategoryPill } from "@/components/portfolio/CategoryPill";
-import { TestimonialCard } from "@/components/portfolio/TestimonialCard";
 
-// New Ecosystem Components
-import { BeyondPGSection } from "@/components/portfolio/BeyondPGSection";
-import { StudentAppSection } from "@/components/portfolio/StudentAppSection";
-import { CreatorEconomySection } from "@/components/portfolio/CreatorEconomySection";
-import { VendorOpsSection } from "@/components/portfolio/VendorOpsSection";
-import { AIIntelligenceSection } from "@/components/portfolio/AIIntelligenceSection";
-import { SelfHealingSection } from "@/components/portfolio/SelfHealingSection";
-import { CampusExpansionSection } from "@/components/portfolio/CampusExpansionSection";
-import { PlatformIntelligenceSection } from "@/components/portfolio/PlatformIntelligenceSection";
 
 function LandingPageContent() {
   const router = useRouter();
@@ -1483,15 +1473,6 @@ function LandingPageContent() {
       {/* 1. Hero Section */}
       <Hero onSearch={handleSearch} />
 
-      {/* Positioning Line Wrapper */}
-      <div style={{ background: "var(--text)", color: "white", padding: "20px 0", textAlign: "center", borderBottom: "4px solid var(--primary)" }}>
-        <Container>
-          <p style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0, letterSpacing: "0.5px" }}>
-            PG Connect is not just a platform—it is a <span style={{ color: "var(--primary)" }}>self-evolving student economy</span> powered by AI-driven supply chains.
-          </p>
-        </Container>
-      </div>
-
       {/* 2. PG Discovery (Existing Explore Section) */}
       <Section id="explore" background="white">
         <Container size="xl">
@@ -1625,53 +1606,6 @@ function LandingPageContent() {
               <EmptyState />
             </div>
           )}
-        </Container>
-      </Section>
-      {/* 3. Beyond PG (Transition) */}
-      <BeyondPGSection />
-
-      {/* 4. Student App Experience */}
-      <StudentAppSection />
-
-      {/* 5. Creator Economy */}
-      <CreatorEconomySection />
-
-      {/* 6. Vendor & Ops System */}
-      <VendorOpsSection />
-
-      {/* 7. AI Intelligence */}
-      <AIIntelligenceSection />
-
-      {/* 8. Self-Healing System */}
-      <SelfHealingSection />
-
-      {/* 9. Expansion */}
-      <CampusExpansionSection />
-
-      {/* 10. Analytics Dashboard */}
-      <PlatformIntelligenceSection />
-
-      {/* 11. Testimonials */}
-      <Section background="white">
-        <Container size="xl">
-          <SectionHeader 
-            title="Ecosystem Stories" 
-            subtitle="Hear from students earning, vendors growing, and owners scaling."
-          />
-          <Grid cols={2} mobileCols={1}>
-            <TestimonialCard 
-              quote="I started delivering notes in my PG. Now I provide tutoring services to 3 nearby PGs using the Connect App."
-              author="Aaryan Sharma"
-              role="Student & Creator"
-              avatar="https://i.pravatar.cc/150?u=aaryan"
-            />
-            <TestimonialCard 
-              quote="The vendor dashboard is incredible. The AI rerouted my food deliveries during peak hours, saving me from delays."
-              author="Mrs. Gupta"
-              role="Tiffin Service Partner"
-              avatar="https://i.pravatar.cc/150?u=gupta"
-            />
-          </Grid>
         </Container>
       </Section>
 

@@ -13,7 +13,8 @@ import {
     ChevronRight,
     LogOut,
     Home,
-    CreditCard
+    CreditCard,
+    MessageSquare
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
@@ -31,6 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
         { name: "Overview", icon: <LayoutDashboard size={20} />, href: "/dashboard/pg-owner" },
         { name: "Properties", icon: <Building2 size={20} />, href: "/dashboard/pg-owner/properties" },
         { name: "Applications", icon: <FileText size={20} />, href: "/dashboard/pg-owner/applications" },
+        { name: "Messages", icon: <MessageSquare size={20} />, href: "/dashboard/pg-owner/chat" },
         { name: "Add Property", icon: <PlusCircle size={20} />, href: "/dashboard/pg-owner/add-pg" },
         { name: "Settings", icon: <Settings size={20} />, href: "/dashboard/pg-owner/settings" },
     ];
@@ -38,6 +40,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
     const guestItems = [
         { name: "My Stay", icon: <Home size={20} />, href: "/dashboard/paying-guest" },
         { name: "Applications", icon: <FileText size={20} />, href: "/dashboard/paying-guest/applications" },
+        { name: "Messages", icon: <MessageSquare size={20} />, href: "/dashboard/paying-guest/chat" },
         { name: "Payments", icon: <CreditCard size={20} />, href: "/dashboard/paying-guest/payments" },
         { name: "Settings", icon: <Settings size={20} />, href: "/dashboard/paying-guest/settings" },
     ];
@@ -57,7 +60,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
             position: "fixed",
             left: 0,
             top: 0,
-            zIndex: 100,
+            zIndex: 9999,
+            pointerEvents: "auto",
             transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             padding: "20px 0"
         }}>
@@ -78,12 +82,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
                     justifyContent: "center",
                     border: "none",
                     cursor: "pointer",
-                    boxShadow: "var(--shadow-sm)"
+                    boxShadow: "var(--shadow-sm)",
+                    zIndex: 10000
                 }}
             >
                 {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
             </button>
-
+ 
             {/* Logo Area */}
             <div style={{ padding: "0 24px", marginBottom: "40px", overflow: "hidden" }}>
                 <Link href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
@@ -103,7 +108,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
                     {!isCollapsed && <span style={{ marginLeft: "12px", fontWeight: 800, fontSize: "1.25rem", color: "var(--text)", letterSpacing: "-0.5px" }}>PGXplore</span>}
                 </Link>
             </div>
-
+ 
             {/* Nav Items */}
             <nav style={{ flex: 1, padding: "0 16px" }}>
                 {menuItems.map((item) => (
@@ -123,8 +128,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
                             overflow: "hidden"
                         }}
                     >
-                        <span style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>{item.icon}</span>
-                        {!isCollapsed && <span style={{ marginLeft: "12px", fontWeight: 600, whiteSpace: "nowrap" }}>{item.name}</span>}
+                        <span style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>{item.icon}</span>
+                        {!isCollapsed && <span style={{ marginLeft: "12px", fontWeight: 600, whiteSpace: "nowrap", pointerEvents: "none" }}>{item.name}</span>}
                     </Link>
                 ))}
             </nav>

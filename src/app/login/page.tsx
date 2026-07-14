@@ -22,7 +22,10 @@ function LoginForm() {
 
     React.useEffect(() => {
         if (status === "authenticated" && session?.user) {
-            if ((session.user as any).role === "PG_OWNER") {
+            const callbackUrl = searchParams.get("callbackUrl");
+            if (callbackUrl) {
+                router.push(callbackUrl);
+            } else if ((session.user as any).role === "PG_OWNER") {
                 router.push("/dashboard/pg-owner");
             } else if ((session.user as any).role === "PAYING_GUEST") {
                 router.push("/dashboard/paying-guest");
@@ -30,7 +33,7 @@ function LoginForm() {
                 router.push("/");
             }
         }
-    }, [status, session, router]);
+    }, [status, session, router, searchParams]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -56,7 +59,10 @@ function LoginForm() {
                 const sessionRes = await fetch("/api/auth/session");
                 const session = await sessionRes.json();
                 
-                if (session?.user?.role === "PG_OWNER") {
+                const callbackUrl = searchParams.get("callbackUrl");
+                if (callbackUrl) {
+                    router.push(callbackUrl);
+                } else if (session?.user?.role === "PG_OWNER") {
                     router.push("/dashboard/pg-owner");
                 } else if (session?.user?.role === "PAYING_GUEST") {
                     router.push("/dashboard/paying-guest");

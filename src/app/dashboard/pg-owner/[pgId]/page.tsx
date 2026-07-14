@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import Link from "next/link";
 import { ChevronLeft, MapPin, BadgeCheck, Users, BedDouble } from "lucide-react";
+import { RoomsManager } from "@/components/dashboard/RoomsManager";
+import { ApplicationCard } from "@/components/dashboard/ApplicationCard";
 
 export default async function PgDetailPage({ params }: { params: Promise<{ pgId: string }> }) {
     const session = await getServerSession(authOptions);
@@ -30,15 +32,6 @@ export default async function PgDetailPage({ params }: { params: Promise<{ pgId:
         occupied += r.CurrentOccupancy;
         total += r.MaxCapacity;
     }));
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case "AVAILABLE": return "#10b981";
-            case "FULL": return "#ef4444";
-            case "LOCKED": return "#64748b";
-            default: return "#cbd5e1";
-        }
-    };
 
     return (
         <div>
@@ -71,51 +64,7 @@ export default async function PgDetailPage({ params }: { params: Promise<{ pgId:
             <div style={{ display: "grid", gridTemplateColumns: "1fr 350px", gap: "32px" }}>
                 {/* Main Content: Floors & Rooms */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-                    {pg.Floors.map(floor => (
-                        <div key={floor.FloorNumber}>
-                            <h2 style={{ fontSize: "1.5rem", fontWeight: 800, marginBottom: "20px", display: "flex", alignItems: "center", gap: "12px" }}>
-                                Floor {floor.FloorNumber}
-                                <span style={{ fontSize: "0.875rem", fontWeight: 500, color: "var(--text-secondary)", background: "var(--bg-surface)", padding: "4px 12px", borderRadius: "20px", border: "1px solid var(--border-light)" }}>
-                                    {floor.Rooms.length} Rooms
-                                </span>
-                            </h2>
-                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
-                                {floor.Rooms.map(room => (
-                                    <Card key={room.RoomId} padding="20px" hover style={{ borderTop: `4px solid ${getStatusColor(room.Status)}` }}>
-                                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
-                                            <div>
-                                                <h3 style={{ fontSize: "1.25rem", fontWeight: 800 }}>Room {room.RoomNumber}</h3>
-                                                <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>{room.Type}</p>
-                                            </div>
-                                            <div style={{ textAlign: "right" }}>
-                                                <span style={{ fontSize: "0.7rem", fontWeight: 800, color: getStatusColor(room.Status), textTransform: "uppercase" }}>{room.Status}</span>
-                                            </div>
-                                        </div>
-
-                                        <div style={{ background: "var(--bg-secondary)", borderRadius: "12px", padding: "12px", marginBottom: "20px" }}>
-                                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.875rem", marginBottom: "8px" }}>
-                                                <span style={{ fontWeight: 600 }}>Occupancy</span>
-                                                <span>{room.CurrentOccupancy} / {room.MaxCapacity}</span>
-                                            </div>
-                                            <div style={{ height: "8px", background: "#e2e8f0", borderRadius: "4px", overflow: "hidden" }}>
-                                                <div style={{ 
-                                                    height: "100%", 
-                                                    width: `${(room.CurrentOccupancy / room.MaxCapacity) * 100}%`, 
-                                                    background: getStatusColor(room.Status),
-                                                    transition: "width 0.5s ease"
-                                                }} />
-                                            </div>
-                                        </div>
-
-                                        <div style={{ display: "flex", gap: "8px" }}>
-                                            <Button variant="outline" size="sm" fullWidth>Manage</Button>
-                                            <Button variant="ghost" size="sm">History</Button>
-                                        </div>
-                                    </Card>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
+                    <RoomsManager pg={pg} />
                 </div>
 
                 {/* Sidebar: Applications & Quick Stats */}
@@ -146,18 +95,7 @@ export default async function PgDetailPage({ params }: { params: Promise<{ pgId:
                                 <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontStyle: "italic" }}>No recent applications</p>
                             ) : (
                                 pgApplications.map(app => (
-                                    <div key={app.Id} style={{ padding: "16px", border: "1px solid var(--border-light)", borderRadius: "12px", background: "var(--bg-secondary)" }}>
-                                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                                            <span style={{ fontSize: "0.875rem", fontWeight: 700 }}>Guest {app.GuestId.slice(0, 5)}</span>
-                                            <span style={{ fontSize: "0.75rem", color: app.Status === "PENDING" ? "#f59e0b" : "#10b981", fontWeight: 700 }}>{app.Status}</span>
-                                        </div>
-                                        {app.Status === "PENDING" && (
-                                            <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
-                                                <Button variant="primary" size="sm" fullWidth>Approve</Button>
-                                                <Button variant="outline" size="sm" fullWidth>Reject</Button>
-                                            </div>
-                                        )}
-                                    </div>
+                                    <ApplicationCard key={app.Id} application={app} pg={pg} />
                                 ))
                             )}
                         </div>

@@ -98,14 +98,20 @@ export async function PATCH(req: Request) {
         const appCol = db.collection("applications");
         const pgCol = db.collection("pg-listings");
 
+        const app = await appCol.findOne({ Id: id });
+        if (!app) {
+            return NextResponse.json({ error: "Application not found" }, { status: 404 });
+        }
+
         await appCol.updateOne({ Id: id }, { $set: { Status: status } });
 
         if (status === "APPROVED" && pgId && roomId) {
-            // Update occupancy in PG listing
+            // Update occupancy in PG listing and add GuestId to room
             await pgCol.updateOne(
                 { Id: pgId, "Floors.FloorNumber": floorNumber, "Floors.Rooms.RoomId": roomId },
                 { 
-                    $inc: { "Floors.$[f].Rooms.$[r].CurrentOccupancy": 1 }
+                    $inc: { "Floors.$[f].Rooms.$[r].CurrentOccupancy": 1 },
+                    $addToSet: { "Floors.$[f].Rooms.$[r].GuestIds": app.GuestId }
                 },
                 {
                     arrayFilters: [

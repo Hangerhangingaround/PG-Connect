@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
 import { PgListing, Floor, Room } from "@/models";
+import { useSession } from "next-auth/react";
 
 export default function GuestApplyPage() {
     const { id } = useParams();
@@ -16,6 +17,7 @@ export default function GuestApplyPage() {
     const [submitting, setSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
     const [pg, setPg] = useState<PgListing | null>(null);
+    const { data: session, status } = useSession();
 
     // Form state
     const [selectedFloor, setSelectedFloor] = useState<number | null>(null);
@@ -45,7 +47,7 @@ export default function GuestApplyPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     PgId: id,
-                    GuestId: "guest-user-1", // Placeholder for session
+                    GuestId: (session?.user as any)?.id || "guest-user-1",
                     FloorNumber: selectedFloor,
                     RoomId: selectedRoom,
                     Conditions: conditions,
@@ -55,13 +57,43 @@ export default function GuestApplyPage() {
 
             if (res.ok) {
                 setSuccess(true);
+            } else {
+                const errData = await res.json().catch(() => ({}));
+                alert(errData.error || "Failed to submit application");
             }
         } catch (err) {
             console.error("Apply error:", err);
+            alert("An error occurred. Please try again.");
         } finally {
             setSubmitting(false);
         }
     };
+
+    if (status === "loading") {
+        return (
+            <main style={{ minHeight: "100vh", background: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <p style={{ fontWeight: 600, color: "var(--text-secondary)" }}>Loading session...</p>
+            </main>
+        );
+    }
+
+    if (status === "unauthenticated") {
+        return (
+            <main style={{ minHeight: "100vh", background: "var(--bg-secondary)" }}>
+                <Navbar />
+                <Container size="sm" style={{ paddingTop: "120px", textAlign: "center" }}>
+                    <div style={{ fontSize: "5rem", marginBottom: "24px" }}>🔒</div>
+                    <h1 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "16px", color: "var(--text)" }}>Login Required</h1>
+                    <p style={{ color: "var(--text-secondary)", fontSize: "1.125rem", marginBottom: "40px" }}>
+                        You must be signed in to apply for a PG residency.
+                    </p>
+                    <Button size="lg" shadow="lg" onClick={() => router.push(`/login?callbackUrl=/pg/${id}/apply`)}>
+                        Sign In / Register
+                    </Button>
+                </Container>
+            </main>
+        );
+    }
 
     if (success) {
         return (

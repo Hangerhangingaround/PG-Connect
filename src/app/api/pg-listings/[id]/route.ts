@@ -14,7 +14,23 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
             return NextResponse.json({ error: "PG not found" }, { status: 404 });
         }
 
-        return NextResponse.json(pg);
+        // Resolve owner details
+        const userCol = db.collection("users");
+        const owner = await userCol.findOne({ Id: pg.OwnerId });
+        const pgWithOwner = {
+            ...pg,
+            Owner: owner ? {
+                Name: owner.Name,
+                Email: owner.Email,
+                Phone: owner.Phone || "+91 98765 43210"
+            } : {
+                Name: "Vikram Vendor",
+                Email: "vikram@pgconnect.com",
+                Phone: "+91 98765 43210"
+            }
+        };
+
+        return NextResponse.json(pgWithOwner);
     } catch (err: any) {
         return NextResponse.json({ error: "Server Error" }, { status: 500 });
     }

@@ -2,18 +2,25 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Navbar } from "@/components/portfolio/Navbar";
 import { Container } from "@/components/portfolio/Container";
 import { Section } from "@/components/portfolio/Section";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/portfolio/Badge";
 import { Footer } from "@/components/portfolio/Footer";
+import { useSession } from "next-auth/react";
+import { ChatWidget } from "@/components/portfolio/ChatWidget";
 
 export default function PGDetailPage() {
     const { id } = useParams();
+    const router = useRouter();
+    const { data: session, status: authStatus } = useSession();
     const [pg, setPg] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [showContactModal, setShowContactModal] = useState(false);
+    const [copied, setCopied] = useState(false);
+    const [showChat, setShowChat] = useState(false);
 
     useEffect(() => {
         if (!id) return;
@@ -31,6 +38,52 @@ export default function PGDetailPage() {
                 setLoading(false);
             });
     }, [id]);
+
+    const handleCopyPhone = () => {
+        const textToCopy = pg?.Owner?.Phone || "+91 98765 43210";
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                })
+                .catch(() => fallbackCopy(textToCopy));
+        } else {
+            fallbackCopy(textToCopy);
+        }
+    };
+
+    const handleChatClick = () => {
+        if (authStatus === "unauthenticated") {
+            router.push(`/login?callbackUrl=/pg/${id}`);
+            return;
+        }
+        setShowChat(true);
+    };
+
+    const fallbackCopy = (text: string) => {
+        try {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            const successful = document.execCommand("copy");
+            document.body.removeChild(textArea);
+            if (successful) {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            } else {
+                alert("Could not copy phone number. Please copy it manually.");
+            }
+        } catch (err) {
+            console.error("Fallback copy failed:", err);
+            alert("Could not copy phone number. Please copy it manually.");
+        }
+    };
 
     if (loading) {
         return (
@@ -243,8 +296,24 @@ export default function PGDetailPage() {
                                 </Button>
                             </Link>
 
-                            <Button variant="outline" size="lg" fullWidth style={{ marginBottom: "16px", borderRadius: "12px" }}>
+                            <Button 
+                                variant="outline" 
+                                size="lg" 
+                                fullWidth 
+                                style={{ marginBottom: "16px", borderRadius: "12px" }}
+                                onClick={() => setShowContactModal(true)}
+                            >
                                 📞 Contact Owner
+                            </Button>
+
+                            <Button 
+                                variant="outline" 
+                                size="lg" 
+                                fullWidth 
+                                style={{ marginBottom: "16px", borderRadius: "12px" }}
+                                onClick={handleChatClick}
+                            >
+                                💬 Chat with Owner
                             </Button>
                             
                             <p style={{ textAlign: "center", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
@@ -270,6 +339,126 @@ export default function PGDetailPage() {
                     </aside>
                 </div>
             </Container>
+
+            {showContactModal && (
+                <div style={{
+                    position: "fixed",
+                    inset: 0,
+                    background: "rgba(0, 0, 0, 0.5)",
+                    backdropFilter: "blur(12px)",
+                    zIndex: 3000,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                }} onClick={() => setShowContactModal(false)}>
+                    <div style={{
+                        background: "white",
+                        width: "400px",
+                        borderRadius: "24px",
+                        padding: "32px",
+                        boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "24px",
+                        position: "relative"
+                    }} onClick={(e) => e.stopPropagation()}>
+                        <button 
+                            onClick={() => setShowContactModal(false)}
+                            style={{
+                                position: "absolute",
+                                top: "24px",
+                                right: "24px",
+                                background: "none",
+                                border: "none",
+                                fontSize: "1.2rem",
+                                cursor: "pointer",
+                                color: "var(--text-secondary)"
+                            }}
+                        >
+                            ✕
+                        </button>
+
+                        <div style={{ textAlign: "center", borderBottom: "1px solid var(--border-light)", paddingBottom: "20px" }}>
+                            <div style={{ 
+                                width: "64px", 
+                                height: "64px", 
+                                borderRadius: "50%", 
+                                background: "var(--bg-secondary)", 
+                                color: "var(--primary)", 
+                                display: "flex", 
+                                alignItems: "center", 
+                                justifyContent: "center", 
+                                fontSize: "1.8rem", 
+                                fontWeight: 800,
+                                margin: "0 auto 12px"
+                            }}>
+                                👤
+                            </div>
+                            <h3 style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--text)", margin: 0 }}>
+                                Contact Property Owner
+                            </h3>
+                            <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", margin: "4px 0 0" }}>
+                                Direct connection for verified residency inquiries.
+                            </p>
+                        </div>
+
+                        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                                <div style={{ fontSize: "1.2rem", width: "24px" }}>👤</div>
+                                <div>
+                                    <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", display: "block" }}>Owner Name</span>
+                                    <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--text)" }}>{pg.Owner?.Name || "Property Owner"}</span>
+                                </div>
+                            </div>
+                            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                                <div style={{ fontSize: "1.2rem", width: "24px" }}>📞</div>
+                                <div>
+                                    <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", display: "block" }}>Phone Number</span>
+                                    <a href={`tel:${pg.Owner?.Phone || "+919876543210"}`} style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--primary)", textDecoration: "none" }}>
+                                        {pg.Owner?.Phone || "+91 98765 43210"}
+                                    </a>
+                                </div>
+                            </div>
+                            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                                <div style={{ fontSize: "1.2rem", width: "24px" }}>📧</div>
+                                <div>
+                                    <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", display: "block" }}>Email Address</span>
+                                    <a href={`mailto:${pg.Owner?.Email || "owner@pgconnect.com"}`} style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--primary)", textDecoration: "none" }}>
+                                        {pg.Owner?.Email || "owner@pgconnect.com"}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
+                            <Button 
+                                variant="primary" 
+                                fullWidth 
+                                onClick={handleCopyPhone}
+                                style={{
+                                    transition: "all 0.3s ease",
+                                    backgroundColor: copied ? "#10b981" : "var(--primary)",
+                                    color: "#fff",
+                                    border: `1px solid ${copied ? "#10b981" : "var(--primary)"}`
+                                }}
+                            >
+                                {copied ? "✓ Copied!" : "📋 Copy Phone"}
+                            </Button>
+                            <Button variant="outline" onClick={() => setShowContactModal(false)} style={{ flex: 1 }}>
+                                Close
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <ChatWidget 
+                pgId={id as string} 
+                ownerId={pg.OwnerId} 
+                pgTitle={pg.Title} 
+                isOpen={showChat} 
+                onClose={() => setShowChat(false)} 
+            />
 
             <Footer />
         </main>
