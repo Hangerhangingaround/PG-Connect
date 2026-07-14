@@ -28,6 +28,12 @@ function LandingPageContent() {
   const role = (session?.user as any)?.role;
   const OWNER_ID = (session?.user as any)?.id;
 
+  React.useEffect(() => {
+    if (status === "authenticated" && role === "PG_OWNER") {
+      router.push("/dashboard/pg-owner");
+    }
+  }, [status, role, router]);
+
   // ----------------------------------------------------
   // GUEST / EXPLORER STATE & EFFECTS
   // ----------------------------------------------------
